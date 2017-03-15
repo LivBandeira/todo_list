@@ -1,3 +1,5 @@
+/#global localStorage
+
 function getTodos() {
     let todos = [];
     let storage = localStorage.getItem('todo');
