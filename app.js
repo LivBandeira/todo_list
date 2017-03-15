@@ -1,66 +1,61 @@
-let myNodelist = document.getElementsByTagName('LI');
+function getTodos() {
+    let todos = [];
+    let storage = localStorage.getItem('todo');
 
-for (let i = 0; i < myNodelist.length; i++) {
-    let button = document.createElement('button');
-    let txt = 'delete';
-
-    button.className = 'remove';
-    button.innerHTML = txt;
-
-    myNodelist[i].appendChild(button);
-}
-
-// Click on a close button to hide the current list item
-let close = document.getElementsByClassName('remove');
-
-for (let i = 0; i < close.length; i++) {
-    close[i].onclick = function() {
-        let div = this.parentElement;
-        div.style.display = 'none';
-    };
-}
-
-// Add a 'checked' symbol when clicking on a list item
-let list = document.querySelector('ol');
-
-list.addEventListener('click', function(ev) {
-    if (ev.target.tagName === 'LI') {
-        ev.target.classList.toggle('checked');
+    if (storage != 'null') {
+        todos = JSON.parse(storage);
     }
-}, false);
 
-// Create a new list item when clicking on the 'Add' button
-function newElement() {
-    let li = document.createElement('li');
-    let inputValue = document.getElementById('addTodoItem').value;
-    let t = document.createTextNode(inputValue);
+    return todos;
+}
 
-    li.appendChild(t);
+function add(evt, inputValue) {
+    if (!inputValue) {
+        inputValue = document.getElementById('addTodoItem').value;
+    }
 
     if (inputValue === '') {
         alert('You must write something!');
     } else {
-        document.getElementById('todoList').appendChild(li);
-    }
+        let button = document.createElement('button');
+        button.id = document.querySelectorAll('#todoList button').length;
+        button.innerHTML = 'delete';
+        button.onclick = function() {
+            let id = this.getAttribute('id');
+            let todos = getTodos();
 
-    document.getElementById('addTodoItem').value = '';
+            todos.splice(id, 1);
+            localStorage.setItem('todo', JSON.stringify(todos));
 
-    let button = document.createElement('button');
-    let txt = 'delete';
-
-    button.className = 'remove';
-    button.innerHTML = txt;
-
-    li.appendChild(button);
-
-    for (let i = 0; i < close.length; i++) {
-        close[i].onclick = function() {
-            let div = this.parentElement;
-            div.style.display = 'none';
+            document.getElementById('todoList').removeChild(this.parentElement);
         };
+
+        let li = document.createElement('li');
+        li.innerHTML = inputValue;
+        li.onclick = function() {
+            this.classList.toggle('checked');
+        };
+        li.appendChild(button);
+
+        document.getElementById('todoList').appendChild(li);
+
+        let todos = getTodos();
+        todos.push(inputValue);
+        localStorage.setItem('todo', JSON.stringify(todos));
+
+        document.getElementById('addTodoItem').value = '';
     }
+
 }
 
-document.getElementById('addTodo').addEventListener('click', newElement);
+(function() {
+    let todos = getTodos();
 
+    localStorage.setItem('todo', null);
 
+    for (let i = 0; i < todos.length; i++) {
+        add(null, todos[i]);
+    }
+
+    document.getElementById('addTodo').addEventListener('click', add);
+})();
